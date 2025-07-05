@@ -9,6 +9,8 @@ import { FirebaseModule } from './firebase/firebase.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { VertexAIModule } from './vertexai/vertexai.module';
+import { PromptModule } from './prompt/prompt.module';
+import { LessonModule } from './lesson/lesson.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { VertexAIModule } from './vertexai/vertexai.module';
     FirebaseModule,
     AuthModule,
     VertexAIModule,
+    PromptModule,
+    LessonModule,
   ],
   controllers: [AppController],
   providers: [

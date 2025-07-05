@@ -15,3 +15,6 @@ export * from './ai-tutor-persona.types.js';
 
 // Collections and common types
 export * from './collections.js';
+
+// VAPI related types
+export * from './vapi.types.js';

@@ -29,9 +29,13 @@ export class UsersService {
   }
 
   async createOnboarding(uid: string, data: OnboardingData) {
-    return await this.usersRepository.update(uid, {
-      onboardingData: data,
-      isUpdatedOnboarding: true,
-    });
+    const user = await this.usersRepository.findById(uid);
+    if (user) {
+      await this.usersRepository.update(uid, {
+        onboardingData: data,
+        isUpdatedOnboarding: true,
+      });
+    }
+    return await this.usersRepository.findById(uid);
   }
 }

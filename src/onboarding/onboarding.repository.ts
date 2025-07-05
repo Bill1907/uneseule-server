@@ -9,6 +9,7 @@ export class OnboardingRepository extends BaseRepository<OnboardingDocument> {
 
   async findByUserId(userId: string): Promise<OnboardingDocument | null> {
     const results = await this.findByField('userId', userId);
+    console.log(results);
     return results.length > 0 ? results[0] : null;
   }
 

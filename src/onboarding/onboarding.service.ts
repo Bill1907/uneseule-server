@@ -44,7 +44,13 @@ export class OnboardingService {
   }
 
   async getUserOnboarding(userId: string) {
-    return await this.onboardingRepository.findByUserId(userId);
+    console.log(userId);
+    const onboarding = await this.onboardingRepository.findByUserId(userId);
+    console.log(onboarding);
+    if (!onboarding) {
+      return null;
+    }
+    return onboarding;
   }
 
   async updateUserInterests(

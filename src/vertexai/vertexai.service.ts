@@ -22,6 +22,38 @@ export class VertexAIService {
     }
   }
 
+  async generateStructuredOutput<T>(
+    prompt: string,
+    schema: any,
+    temperature: number = 0.7,
+  ): Promise<T> {
+    try {
+      const result = await this.model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: 'application/json',
+          responseSchema: schema,
+          temperature,
+        },
+      });
+
+      const response = result.response;
+      const responseText = response.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!responseText) {
+        throw new Error('No response text received from Vertex AI');
+      }
+
+      return JSON.parse(responseText) as T;
+    } catch (error) {
+      this.logger.error(
+        'Vertex AI structured output generation failed:',
+        error,
+      );
+      throw new Error('Failed to generate structured output with Vertex AI');
+    }
+  }
+
   async generateStreamingText(prompt: string): Promise<AsyncIterable<string>> {
     try {
       const result = await this.model.generateContentStream(prompt);

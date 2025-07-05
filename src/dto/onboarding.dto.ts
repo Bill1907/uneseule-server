@@ -63,3 +63,7 @@ export class UpdateOnboardingDto {
   @IsString()
   feedbackStyle?: string;
 }
+
+export class CreateOnboardingVoicePromptDto {
+  userId: string;
+}

@@ -25,7 +25,7 @@ export class LessonController {
         );
       }
 
-      const recommendations = await this.lessonService.recommendClasses(
+      const recommendations = await this.lessonService.recommendLessons(
         dto.userId,
       );
 
@@ -50,9 +50,9 @@ export class LessonController {
   }
 
   @Post('contents')
-  async createClass(@Body() dto: ClassRecommendation) {
+  async createLesson(@Body() dto: ClassRecommendation) {
     try {
-      const lesson = await this.lessonService.createClass(dto);
+      const lesson = await this.lessonService.createLesson(dto);
       console.log(lesson);
       return {
         success: true,

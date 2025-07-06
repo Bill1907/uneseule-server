@@ -6,6 +6,7 @@ export const COLLECTIONS = {
   LEARNING_SESSIONS: 'learningSessions',
   PPT_CONTENTS: 'pptContents',
   AI_TUTOR_PERSONAS: 'aiTutorPersonas',
+  USER_TRAINING_DATA: 'userTrainingData',
 } as const;
 
 export const SUBCOLLECTIONS = {

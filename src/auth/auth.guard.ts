@@ -5,13 +5,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { FirebaseService } from '../firebase/firebase.service';
+import { ClerkService } from '../clerk/clerk.service';
 import { IS_PUBLIC_KEY } from '../decorator/public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private readonly firebaseService: FirebaseService,
+    private readonly clerkService: ClerkService,
     private reflector: Reflector,
   ) {}
 
@@ -28,25 +28,16 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException('Authorization token not found');
+      throw new UnauthorizedException('No token provided');
     }
 
     try {
-      // FirebaseService를 사용해 토큰을 검증합니다.
-      const decodedToken = await this.firebaseService
-        .getAuthInstance()
-        .verifyIdToken(token);
-
-      // 💡 [중요] 검증된 유저 정보를 request 객체에 추가합니다.
-      // 이렇게 하면 뒤따르는 컨트롤러에서 @Request() 데코레이터를 통해 유저 정보에 접근할 수 있습니다.
-      request['user'] = decodedToken;
+      const payload = await this.clerkService.authenticateRequest(request);
+      request.user = payload;
+      return true;
     } catch (error) {
-      // 토큰이 유효하지 않은 경우 (만료, 형식 오류 등)
-      console.error('Firebase Auth Error:', error);
-      throw new UnauthorizedException('Invalid authorization token');
+      throw new UnauthorizedException();
     }
-
-    return true; // 토큰 검증 성공 시 true를 반환하여 요청을 통과시킵니다.
   }
 
   // Request 헤더에서 'Bearer' 토큰을 추출하는 헬퍼 함수

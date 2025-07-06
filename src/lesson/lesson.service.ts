@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { z } from 'zod/v4';
 import { VertexAIService } from '../vertexai/vertexai.service';
-import { UsersService } from 'src/users/users.service';
 import {
   ClassRecommendation,
   ClassRecommendationResponse,
 } from '../dto/lesson.dto';
 import { OnboardingData } from 'src/types/user.types';
+import { UserTrainingDataService } from 'src/user-traning-data/user-training-data.service';
 
 // Zod 4 스키마 정의 (검증용)
 const ClassRecommendationSchema = z.object({
@@ -34,7 +34,7 @@ export class LessonService {
   private readonly jsonSchema: any;
 
   constructor(
-    private readonly usersService: UsersService,
+    private readonly userTrainingDataService: UserTrainingDataService,
     private readonly vertexAIService: VertexAIService,
   ) {
     // Vertex AI 완벽 호환 수동 JSON Schema 사용
@@ -82,24 +82,19 @@ export class LessonService {
       },
       required: ['recommendations'],
     };
-
-    // 디버깅을 위해 사용할 스키마 로깅
-    console.log(
-      'Using Manual JSON Schema:',
-      JSON.stringify(this.jsonSchema, null, 2),
-    );
   }
 
-  async recommendClasses(userId: string): Promise<ClassRecommendationResponse> {
+  async recommendLessons(userId: string): Promise<ClassRecommendationResponse> {
     try {
       // 사용자 온보딩 데이터 가져오기
-      const user = await this.usersService.getUsers(userId);
+      const userTrainingData =
+        await this.userTrainingDataService.getUserTrainingDataByUserId(userId);
 
-      if (!user) {
+      if (!userTrainingData) {
         throw new NotFoundException('User not found');
       }
 
-      const onboardingData = user.onboardingData;
+      const onboardingData = userTrainingData;
 
       // AI 프롬프트 생성
       const prompt = this.generateRecommendationPrompt(onboardingData);
@@ -131,7 +126,7 @@ export class LessonService {
     }
   }
 
-  async createClass(dto: ClassRecommendation): Promise<ClassRecommendation> {
+  async createLesson(dto: ClassRecommendation): Promise<ClassRecommendation> {
     return dto;
   }
 

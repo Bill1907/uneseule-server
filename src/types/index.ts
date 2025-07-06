@@ -18,3 +18,5 @@ export * from './collections.js';
 
 // VAPI related types
 export * from './vapi.types.js';
+
+export * from './user-training-data.types.js';

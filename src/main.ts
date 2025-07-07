@@ -14,7 +14,7 @@ async function bootstrap() {
   const port = process.env.PORT || 8080;
   await app.listen(port, '0.0.0.0');
 
-  console.log(`Application is running on: http://0.0.0.0:${port}`);
+  console.log(`Application is running on: http://0.0.0.0:${port} hihi`);
   console.log(`Health check available at: http://0.0.0.0:${port}/health`);
 }
 

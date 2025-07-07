@@ -37,8 +37,6 @@ steps:
       - '--max-instances'
       - '10'
       - '--allow-unauthenticated'
-      - '--set-env-vars'
-      - 'NODE_ENV=production'
 
 images:
   - 'gcr.io/$PROJECT_ID/uneseule-server:$COMMIT_SHA'

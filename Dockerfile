@@ -31,9 +31,6 @@ RUN npm ci --omit=dev && npm cache clean --force
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Copy Firebase service account key (if needed)
-COPY uneseule-ai-firebase-adminsdk-fbsvc-d81274cc94.json ./
-
 # Create a non-root user
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nestjs -u 1001

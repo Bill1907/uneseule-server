@@ -126,8 +126,26 @@ export class LessonService {
     }
   }
 
-  async createLesson(dto: ClassRecommendation): Promise<ClassRecommendation> {
-    return dto;
+  async createLesson(
+    userId: string,
+    dto: ClassRecommendation,
+  ): Promise<ClassRecommendation> {
+    const userTrainingData =
+      await this.userTrainingDataService.getUserTrainingDataByUserId(userId);
+    if (!userTrainingData) {
+      throw new NotFoundException('User not found');
+    }
+    const onboardingData = userTrainingData;
+    const prompt = this.generateRecommendationPrompt(onboardingData);
+    const structuredResponse =
+      await this.vertexAIService.generateStructuredOutput<ClassRecommendationList>(
+        prompt,
+        this.jsonSchema,
+        0.7,
+      );
+    const validatedResponse =
+      ClassRecommendationListSchema.parse(structuredResponse);
+    return validatedResponse.recommendations[0];
   }
 
   private generateRecommendationPrompt(onboardingData: OnboardingData): string {

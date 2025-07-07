@@ -50,9 +50,12 @@ export class LessonController {
   }
 
   @Post('contents')
-  async createLesson(@Body() dto: ClassRecommendation) {
+  async createLesson(
+    @Query('userId') userId: string,
+    @Body() dto: ClassRecommendation,
+  ) {
     try {
-      const lesson = await this.lessonService.createLesson(dto);
+      const lesson = await this.lessonService.createLesson(userId, dto);
       console.log(lesson);
       return {
         success: true,

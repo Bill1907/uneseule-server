@@ -1,50 +1,29 @@
-# Use the official Node.js runtime as the base image
+# Dockerfile 예시 (NestJS 프로덕션 빌드용)
+# stage 1: 빌드 환경
 FROM node:20-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
 COPY package*.json ./
-
-# Install ALL dependencies (including devDependencies for build)
-RUN npm ci && npm cache clean --force
-
-# Copy source code
+RUN npm install --omit=dev # 프로덕션 의존성만 설치
 COPY . .
+RUN npm run build # TypeScript 컴파일
 
-# Build the application
-RUN npm run build
+# stage 2: 런타임 환경
+FROM node:20-alpine
 
-# Production stage
-FROM node:20-alpine AS production
-
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install only production dependencies
-RUN npm ci --omit=dev && npm cache clean --force
-
-# Copy built application from builder stage
+# 빌드 스테이지에서 컴파일된 JS 파일과 node_modules 복사
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./package.json
 
-# Create a non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nestjs -u 1001
+# 환경 변수 (Cloud Run이 PORT를 주입하지만, 명시적으로 설정할 수도 있습니다.)
+ENV NODE_ENV production
+# Cloud Run은 PORT 환경 변수를 자동으로 주입하므로 여기서는 8080 고정보다는 사용하지 않는 것이 좋습니다.
+# ENV PORT 8080
 
-# Change ownership of the app directory to the nestjs user
-RUN chown -R nestjs:nodejs /app
-USER nestjs
+EXPOSE 8080 
 
-# Expose the port the app runs on
-EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:8080/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
-
-# Start the application
-CMD ["node", "dist/main.js"] 
+CMD [ "node", "dist/main.js" ] 

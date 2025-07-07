@@ -5,19 +5,23 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --omit=dev # 프로덕션 의존성만 설치
+# 빌드를 위해 모든 의존성 설치 (dev 포함)
+RUN npm install 
 COPY . .
-RUN npm run build # TypeScript 컴파일
+# TypeScript 컴파일
+RUN npm run build 
 
 # stage 2: 런타임 환경
 FROM node:20-alpine
 
 WORKDIR /app
 
-# 빌드 스테이지에서 컴파일된 JS 파일과 node_modules 복사
-COPY --from=builder /app/node_modules ./node_modules
+# 프로덕션 의존성만 설치
+COPY package*.json ./
+RUN npm install --omit=dev
+
+# 빌드 스테이지에서 컴파일된 JS 파일 복사
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./package.json
 
 # 환경 변수 (Cloud Run이 PORT를 주입하지만, 명시적으로 설정할 수도 있습니다.)
 ENV NODE_ENV production
